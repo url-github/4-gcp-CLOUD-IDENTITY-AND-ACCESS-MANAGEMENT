@@ -32,7 +32,26 @@
 
 > gcloud iam service-accounts list
 
-#### Tworzenie ról
+#### Tworzenie ról za pomocą CLI
+
+1. Wprowadzenie parametrów do pliku YML
+
+> nano roles.yml
+
+title: "Role Viewer"
+description: "My custom role description."
+stage: "ALPHA"
+includedPermissions:
+- iam.roles.get
+- iam.roles.list
+
+2. Załadowanie roli
+
+> gcloud iam roles create pmviewer --project gcp-cloud-276415 --file roles.yml
+
+3. Sprawdzenie roli
+
+> gcloud iam roles describe pmviewer --project gcp-cloud-276415
 
 
 
