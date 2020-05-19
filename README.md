@@ -32,6 +32,10 @@
 
 > gcloud iam service-accounts list
 
+#### Tworzenie ról
+
+
+
 
 
 
