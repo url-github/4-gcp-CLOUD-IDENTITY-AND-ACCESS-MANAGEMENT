@@ -18,3 +18,23 @@
 
 > ctrl + x ( wyjście z nano )
 
+#### Tworzenie kont serwisowych za pomocą CLI ( kont usługi )
+
+> gcloud iam service-accounts create pm-v1-cli --description "opis" --display-name "pm-v1-cli"
+
+> gcloud iam service-accounts list
+
+#### Stworzenie klucza oraz przypisanie go do wcześniej utworzonego konta serwisowego "pm-v1-cli"
+
+> gcloud iam service-accounts keys create ~/key.json --iam-account pm-v1-gcp@gcp-cloud-276415.iam.gserviceaccount.com
+
+#### Wylistowanie kont serwisowych
+
+> gcloud iam service-accounts list
+
+
+
+
+
+
+
