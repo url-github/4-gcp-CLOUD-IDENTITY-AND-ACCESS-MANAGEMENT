@@ -53,6 +53,58 @@ includedPermissions:
 
 > gcloud iam roles describe pmviewer --project gcp-cloud-276415
 
+#### Organization Policy Service and Constraints ( Zasady organizacji )
+
+To działa kiedy mam założoną organizację. W GCP pod produkcję najlepiej wyłączyć tworzenie domyślnej sieci VPC.
+
+## Dodatkowo mogę ograniczyć ilość obrazów maszyn.
+
+1. Polityka blokowania obrazów podczas tworzenia VM.
+
+> gcloud beta resource-manager org-policies describe compute.trustedImageProjects --effective  --project gcp-cloud-276415
+
+2. Zrzucenie polityki do pliku oraz zrobienie kopii.
+
+> gcloud beta resource-manager org-policies describe compute.trustedImageProjects --effective  --project gcp-cloud-276415 > client2policy.yaml
+
+> gcloud beta resource-manager org-policies describe compute.trustedImageProjects --effective  --project gcp-cloud-276415 > client2restore.yaml
+
+3. Wylistuje listę obrazów.
+
+> gcloud compute images list
+
+4. W pliku "client2policy.yaml" edytuję zawartość.
+
+constraint: constraints/compute.trustedImageProjects
+listPolicy:
+  allValues: ALLOW
+  
+---
+
+constraint: constraints/compute.trustedImageProjects
+listPolicy:
+deniedValues:
+- projects/debian-cloud
+  
+5. Ładuje nową politykę.
+
+> gcloud beta resource-manager org-policies set-policy --project gcp-cloud-276415 client2policy.yaml
+
+6. Przywracam starą politykę.
+
+> gcloud beta resource-manager org-policies set-policy --project gcp-cloud-276415 client2restore.yaml
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
