@@ -1,5 +1,9 @@
 # 4-gcp-CLOUD-IDENTITY-AND-ACCESS-MANAGEMENT
 
+( notatki z Chmurowisko )
+
+---
+
 #### Dodanie użytkownika za pomocą CLI 
 
 > gcloud projects add-iam-policy-binding gcp-cloud-276415 --member user:example@gmail.com --role roles/viewer
