@@ -98,6 +98,10 @@ deniedValues:
 
 > gcloud beta resource-manager org-policies set-policy --project gcp-cloud-276415 client2restore.yaml
 
+#### Szyfrowanie danych (za pomocą KMS url: https://cloud.google.com/kms/ ) zapisanych w Google Cloud Bucket.
+
+
+
 
 
 
