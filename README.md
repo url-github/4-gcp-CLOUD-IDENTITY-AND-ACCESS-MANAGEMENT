@@ -100,7 +100,9 @@ deniedValues:
 
 #### Szyfrowanie danych (za pomocą KMS url: https://cloud.google.com/kms/ ) zapisanych w Google Cloud Bucket.
 
+1. Utworzenie Bucket. 
 
+> gsutil mb gs://gcp-kms-bucket
 
 
 
