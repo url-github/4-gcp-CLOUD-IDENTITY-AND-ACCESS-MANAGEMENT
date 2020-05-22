@@ -152,9 +152,15 @@ q1mbYhd3yML7g9aBO2pnjhXmd8wIBR+J20kG2uBkwRAE3W07bP6B/zKife1/AcANgywUEyw9Vevlkxbp
 ZbkThtvLpgDv2OTYjfgr8bC/OUGK1h7iINAa9e1e+ok0TSpAFdp2Dnf6SadnX4VvbR5fCXap/52CgszIqzQ0NmgO+zS5iI3QWX/qKwZMVHb82JtSMLjDuSN1B/7dWLL3gEQQ8euraByyeKyzAah/kWVM7gQzRRj/DFpqGSmS/pH3BmsKiZqOCVhZkiSF6Rs8XG
 6zG6p53icoFeV79gyYrbYOPG6zwMc9Cp1QgaedxX169O6ywy1DkdjYNctdvu6LLPlZPEk8RIT+bF6kXMg==",
 
+10. Szyfrowanie wraz z zapisem do pliku ( txt01.encrypted ):
+
+curl -v "https://cloudkms.googleapis.com/v1/projects/gcp-cloud-276415/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
+-d "{\"plaintext\":\"$TEXT\"}" \
+-H "Authorization:Bearer $(gcloud auth application-default print-access-token)" \
+-H "Content-Type: application/json" \
+jq ciphertext -r > file01.encrypted
 
 
-| jq ciphertext -r > txt01.encrypted
 
 
 
