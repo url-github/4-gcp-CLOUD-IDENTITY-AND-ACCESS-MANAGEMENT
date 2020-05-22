@@ -130,6 +130,19 @@ deniedValues:
 
 > projects/gcp-cloud-276415/locations/global/keyRings/mykeyring/cryptoKeys/mykey
 
+7. Szyfrowanie pliku. Wykonuję formatowanie ( base64 ) i zapis pliku do zmiennej TEXT
+
+> TEXT=$(cat txt01.txt | base64 -w0)
+
+8. Podejrzenie pliku sformatowanego do base64
+
+> echo $TEXT
+
+
+
+
+
+
 
 
 
