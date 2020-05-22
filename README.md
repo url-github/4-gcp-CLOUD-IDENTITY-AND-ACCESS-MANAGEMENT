@@ -104,6 +104,38 @@ deniedValues:
 
 > gsutil mb gs://gcp-kms-bucket
 
+2. Repozytorium z plikami do zaszyfrowania ( https://github.com/url-github/example-data )
+
+> git clone https://github.com/url-github/example-data
+
+3. Komendy w bash
+
+> cd example-data
+
+> ls
+
+> cat txt01.txt
+
+4. Uruchamiam API KMS.
+
+> gcloud services enable cloudkms.googleapis.com
+
+5. Aby zaszyfrować dane tworzę: Key ring ( to taki odpowiednik folderów ) oraz Key. 
+
+> gcloud kms keyrings create mykeyring --location global
+
+> gcloud kms keys create mykey --location global --keyring mykeyring --purpose encryption 
+
+6. Done. ID zasobu to: 
+
+> projects/gcp-cloud-276415/locations/global/keyRings/mykeyring/cryptoKeys/mykey
+
+
+
+
+
+
+
 
 
 
