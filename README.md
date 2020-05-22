@@ -140,30 +140,21 @@ deniedValues:
 
 9. Szyfrowanie.
 
-> curl -v "https://cloudkms.googleapis.com/v1/projects/gcp-cloud/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
+curl -v "https://cloudkms.googleapis.com/v1/projects/gcp-cloud-276415/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
 -d "{\"plaintext\":\"$TEXT\"}" \
--H "Authorization:Bearer $(gcloud auth application-default print-access-token)"\
+-H "Authorization:Bearer $(gcloud auth application-default print-access-token)" \
 -H "Content-Type: application/json"
 
-> curl -v "https://cloudkms.googleapis.com/v2/projects/gcp-cloud/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
--d "{\"plaintext\":\"$TEXT\"}" \
--H "Authorization:Bearer $(gcloud auth application-default print-access-token)"\
--H "Content-Type: application/json"
+W JSON mam zaszyfrowany tekst:
+
+  "ciphertext": "CiQARqcOATlKPR3fnygDNDyah1yO7TqynSCN5xu2XPzztVRI94ESuwMA8VMfnYc2370Vrd5zLFRVFYfrCetE4rn1zkIUMy9Fi6mE6A5RPAZdNYPHsK/OlTx9BIR/UJORq5+0zzJiVi3HSoYDJuNcHR0TDFQDnlTwC00fIQFvIA8VlYKjb
+q1mbYhd3yML7g9aBO2pnjhXmd8wIBR+J20kG2uBkwRAE3W07bP6B/zKife1/AcANgywUEyw9Vevlkxbp0ieQqZROqIInfKUkEpMECxM4+VsNhrDv2qMDNraNrA9hwvBvlZmufQHuh85nB89SciPTWFvyqo82RyT+U41HWL20qj7GviBw6OdqwkKF7nm3N528cG
+ZbkThtvLpgDv2OTYjfgr8bC/OUGK1h7iINAa9e1e+ok0TSpAFdp2Dnf6SadnX4VvbR5fCXap/52CgszIqzQ0NmgO+zS5iI3QWX/qKwZMVHb82JtSMLjDuSN1B/7dWLL3gEQQ8euraByyeKyzAah/kWVM7gQzRRj/DFpqGSmS/pH3BmsKiZqOCVhZkiSF6Rs8XG
+6zG6p53icoFeV79gyYrbYOPG6zwMc9Cp1QgaedxX169O6ywy1DkdjYNctdvu6LLPlZPEk8RIT+bF6kXMg==",
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+| jq ciphertext -r > txt01.encrypted
 
 
 
