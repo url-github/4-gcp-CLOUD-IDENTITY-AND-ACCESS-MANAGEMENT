@@ -138,6 +138,21 @@ deniedValues:
 
 > echo $TEXT
 
+9. Szyfrowanie.
+
+> curl -v "https://cloudkms.googleapis.com/v1/projects/gcp-cloud/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
+-d "{\"plaintext\":\"$TEXT\"}" \
+-H "Authorization:Bearer $(gcloud auth application-default print-access-token)"\
+-H "Content-Type: application/json"
+
+> curl -v "https://cloudkms.googleapis.com/v2/projects/gcp-cloud/locations/global/keyRings/mykeyring/cryptoKeys/mykey:encrypt" \
+-d "{\"plaintext\":\"$TEXT\"}" \
+-H "Authorization:Bearer $(gcloud auth application-default print-access-token)"\
+-H "Content-Type: application/json"
+
+
+
+
 
 
 
