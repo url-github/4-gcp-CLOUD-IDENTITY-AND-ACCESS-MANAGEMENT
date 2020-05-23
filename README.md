@@ -244,6 +244,20 @@ AccessDeniedException: 403 bucket-viewer-zad4-v2@gcp-cloud-276415.iam.gserviceac
 
 > bigdata_pw_2020@zad4pmvm-v2:~$ 
 
+### 1.5 Usunięcie zasobów
+
+> gcloud compute instances delete $vmName --zone=$vmZone 
+> gcloud compute instances delete zad4pmvm --zone=europe-west3-b	
+
+> gcloud iam service-accounts delete $serviceAccountEmail
+> gcloud iam service-accounts list
+> gcloud iam service-accounts delete bucket-viewer-zad4@gcp-cloud-276415.iam.gserviceaccount.com
+
+> gsutil -m rm -r gs://${bucketName}/
+> gsutil -m rm -r gs://zad4pmstorage/
+
+> rm test*.txt
+
 
 
 
