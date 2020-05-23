@@ -160,6 +160,97 @@ curl -v "https://cloudkms.googleapis.com/v1/projects/gcp-cloud-276415/locations/
 -H "Content-Type: application/json" \
 jq ciphertext -r > file01.encrypted
 
+# Zadanie 4.
+
+## 1. Zadanie 1
+Klient poprosił cię o przygotowanie maszyny dla swoich pracowników, którzy będą mogli pobierać faktury z przygotowanego repozytorium (w naszym przypadku jest to pojemnik Cloud Storage)
+
+### 1.1 Przygotowanie Cloud Storage
+#### Zmienne
+bucketName="zad4pmstorage"
+bucketLocation="europe-west3"
+
+#### Utworzenie bucketa
+gsutil mb -c STANDARD -l europe-west3 gs://zad4pmstorage/
+
+#### Utworzenie plików
+echo "Plik 1 - przykładowy tekst 1" > test10.txt
+echo "Plik 2 - przykładowy tekst 2" > test11.txt
+
+#### Wysłanie plików
+gsutil cp test1*.txt gs://zad4pmstorage/
+
+### 1.2 Utworzenie Service Account
+
+Utworzenie konta serwisowego z dostępnem Read-only do wcześniej utworzonego bucketa
+
+Administracja > Konta usługi
+
+Krok 1. Nazwa konta usługi: Bucket Viewer zad4
+Krok 2. Rola Wyświetlający obiekty Cloud Storage
+Krok 3. Oraz warunku dostępu tylko do danego bucketa:
+
+resource.name == "projects/_/buckets/zad4pmstorage" ||
+resource.name.startsWith("projects/_/buckets/zad4pmstorage/objects/")
+
+### 1.3 Utworzenie VM
+
+# Zmienne
+vmName="zad4pmvm"
+vmType="f1-micro"
+vmZone="europe-west3-b"
+serviceAccountEmail="bucket-viewer-zad4@gcp-cloud-276415.iam.gserviceaccount.com" 
+
+> gcloud iam service-accounts list 
+
+# Utworzenie VM
+
+> gcloud compute instances create $vmName --zone=$vmZone --machine-type=$vmType --image-project=debian-cloud --image=debian-9-stretch-v20191210 --service-account=$serviceAccountEmail
+
+> gcloud compute instances create zad4pmvm --zone=europe-west3-b --machine-type=f1-micro --image-project=debian-cloud --image=debian-9-stretch-v20191210 --service-account=bucket-viewer-zad4@gcp-cloud-276415.iam.gserviceaccount.com
+
+### 1.4 Sprawdzenie uprawnień
+Połączenie się z VM i sprawdzenie czy ma dostęp Read-only do bucketa.
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ gsutil ls gs://zad4pmstorage
+
+gs://zad4pmstorage/test1.txt
+gs://zad4pmstorage/test10.txt
+gs://zad4pmstorage/test11.txt
+gs://zad4pmstorage/testvm.txt
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ gsutil cat gs://zad4pmstorage/test1.txt
+
+Plik 1 - przykładowy tekst 1
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ echo "test1" > testvm.txt
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ ls
+
+testvm.txt
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ gsutil cp testvm.txt gs://zad4pmstorage
+
+Copying file://testvm.txt [Content-Type=text/plain]...
+AccessDeniedException: 403 Insufficient Permission                              
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ gsutil rm gs://zad4pmstorage/test1.txt
+
+Removing gs://zad4pmstorage/test1.txt...
+AccessDeniedException: 403 Insufficient Permission
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ gsutil ls gs://
+AccessDeniedException: 403 bucket-viewer-zad4-v2@gcp-cloud-276415.iam.gserviceaccount.com does not have storage.buckets.list access to the Google Cloud project.
+
+> bigdata_pw_2020@zad4pmvm-v2:~$ 
+
+
+
+
+
+
+
+
 
 
 
