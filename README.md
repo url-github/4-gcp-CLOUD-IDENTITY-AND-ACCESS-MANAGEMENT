@@ -370,8 +370,114 @@ or Name Starts with projects/_/buckets/secretstoragepm/objects/
 oraz deszyfrowania danych za pomocą kluczy z danego keyringa:
 Name Starts with projects/gcp-cloud-276415/locations/global/keyRings/vmkeyrings/cryptoKeys/
 
+### 2.6 Utworzenie VM
+vmNameEncrypt="zad4encr"
+vmNameDecrypt="zad4decr"
+vmType="f1-micro"
+vmZone="europe-west3-b"
 
+> gcloud iam service-accounts list 
 
+serviceAccountEmailEncrypt="document-decryptor@gcp-cloud-276415.iam.gserviceaccount.com"
+serviceAccountEmailDecrypt="document-encryptor@gcp-cloud-276415.iam.gserviceaccount.com"
+
+# Encryptor VM
+
+> gcloud compute instances create $vmNameEncrypt --zone=$vmZone --machine-type=$vmType --image-project=debian-cloud --image=debian-9-stretch-v20191210 --service-account=$serviceAccountEmailEncrypt --scopes=https://www.googleapis.com/auth/cloud-platform
+
+> gcloud compute instances create zad4encr --zone=europe-west3-b --machine-type=f1-micro --image-project=debian-cloud --image=debian-9-stretch-v20200521 --service-account=document-encryptor@gcp-cloud-276415.iam.gserviceaccount.com --scopes=https://www.googleapis.com/auth/cloud-platform
+
+# Decryptor VM
+
+> gcloud compute instances create $vmNameDecrypt --zone=$vmZone --machine-type=$vmType --image-project=debian-cloud --image=debian-9-stretch-v20191210 --service-account=$serviceAccountEmailDecrypt --scopes=https://www.googleapis.com/auth/cloud-platform
+
+> gcloud compute instances create zad4decr --zone=europe-west3-b --machine-type=f1-micro --image-project=debian-cloud --image=debian-9-stretch-v20191210 --service-account=document-decryptor@gcp-cloud-276415.iam.gserviceaccount.com --scopes=https://www.googleapis.com/auth/cloud-platform
+
+### 2.7 Zaszyfrowanie plików
+
+bucketName="secretstoragepm"
+keyringsName="vmkeyrings"
+keyName="vmKeyAsync"
+keyVersion="1"
+
+# Utworzenie przykładowych plików
+
+> echo "Plik 1 - przykładowy tekst 1 ąźćżółęż" > test1.txt
+
+> echo "Plik 2 - przykładowy tekst 2 ąźćżółęż" > test2.txt
+
+# Pobranie klucza publicznego
+
+> gcloud kms keys versions get-public-key $keyVersion --location global --keyring $keyringsName --key $keyName --output-file public-key.pub
+
+> gcloud kms keys versions get-public-key 1 --location global --keyring vmkeyrings --key vmKeyAsync --output-file public-key.pub
+
+# Zaszyfrowanie plików
+
+> mkdir secret
+
+Plik 1.
+
+> openssl pkeyutl -in $HOME/test1.txt -encrypt -pubin -inkey $HOME/public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > $HOME/secret/test1.enc
+
+> openssl pkeyutl -in test1.txt -encrypt -pubin -inkey public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > secret/test1.enc
+
+Plik 2.
+
+> openssl pkeyutl -in $HOME/test2.txt -encrypt -pubin -inkey $HOME/public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > $HOME/secret/test2.enc
+
+> openssl pkeyutl -in test2.txt -encrypt -pubin -inkey public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > secret/test2.enc
+
+# Wysłanie plików do Cloud Storage
+
+> gsutil cp $HOME/secret/test1.enc gs://$bucketName/
+
+> gsutil cp secret/test1.enc gs://secretstoragepm/
+
+> gsutil cp $HOME/secret/test2.enc gs://$bucketName/
+
+> gsutil cp secret/test2.enc gs://secretstoragepm/
+
+# Próby wykonania niedozwolonych operacji
+
+> gsutil ls gs://$bucketName
+
+> gsutil ls gs://secretstoragepm/
+
+> gsutil rm gs://$bucketName/test1.enc
+
+> gsutil rm gs://secretstoragepm/test1.enc
+
+> gsutil cat gs://$bucketName/test1.enc # powodzenie - jak można zauważyć może odczytywać pliki które utworzył
+
+> gsutil cat gs://secretstoragepm/test1.enc # powodzenie - jak można zauważyć może odczytywać pliki które utworzył
+
+> gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/secret/test1.enc --plaintext-file $HOME/test1-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring vmkeyrings --key vmKeyAsync --version 1 --ciphertext-file secret/test1.enc --plaintext-file test1-odszyfrowany.txt
+
+### 2.8 Odszyfrowanie plików
+
+bucketName="secretstoragebp"
+keyringsName="vmkeyrings"
+keyName="vmKeyAsync"
+keyVersion="1"
+
+# Pobranie plików
+gsutil cp gs://$bucketName/* .
+
+# Odszyfrowanie plików
+gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test1.enc --plaintext-file $HOME/test1-odszyfrowany.txt
+gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test2.enc --plaintext-file $HOME/test2-odszyfrowany.txt
+
+# Wyświetlenie zawartości odszyfrowanych plików
+cat test1-odszyfrowany.txt
+cat test2-odszyfrowany.txt
+
+# Próby wykonania niedozwolonych operacji
+gsutil rm gs://$bucketName/test1.enc
+gcloud kms keys versions get-public-key $keyVersion --location global --keyring $keyringsName --key $keyName --output-file public-key.pub
+gsutil cp $HOME/test1-odszyfrowany.txt gs://$bucketName/
 
 
 
