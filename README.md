@@ -258,6 +258,65 @@ AccessDeniedException: 403 bucket-viewer-zad4-v2@gcp-cloud-276415.iam.gserviceac
 
 > rm test*.txt
 
+## 2. Zadanie 2
+
+Dany klient przetrzymuje bardzo ważne dokumenty. Zarząd zdecydował, że wprowadzą szyfrowanie krytycznych dokumentów, które będą mogły zostać odszyfrowane po stronie pracownika, który z danego dokumentu chce skorzystać.
+
+### 2.1 Utworzenie bucketa dla plików
+bucketName="secretstoragepm"
+bucketLocation="europe-west3"
+
+# Utworzenie bucketa
+
+> gsutil mb -c STANDARD -l $bucketLocation gs://${bucketName}/
+
+> gsutil mb -c STANDARD -l europe-west3 gs://secretstoragepm/
+
+### 2.2 Uruchomieie usługi KMS
+
+> gcloud services enable cloudkms.googleapis.com
+
+### 2.3 Utworzenie klucza asymetrycznego
+keyringsName="vmkeyrings"
+keyName="vmKeyAsync"
+keyPurpose="asymmetric-encryption"
+defaultAlgorithm="rsa-decrypt-oaep-3072-sha256"
+
+# Utworzenie Keyrings
+
+> gcloud kms keyrings create $keyringsName --location global
+
+> gcloud kms keyrings create vmkeyrings --location global
+
+# Utworzenie klucza ( https://cloud.google.com/kms/docs/creating-asymmetric-keys )
+
+> gcloud kms keys create $keyName --location global --keyring $keyringsName --purpose $keyPurpose --default-algorithm $defaultAlgorithm
+
+> gcloud kms keys create vmKeyAsync --location global --keyring vmkeyrings --purpose asymmetric-encryption --default-algorithm rsa-decrypt-oaep-3072-sha256 
+
+### 2.4 PoC w Cloud Shell
+
+### PoC w Cloud Shell
+
+#### 2.4.1 Utworzenie przykładowego pliku
+
+> echo "Plik 1 - przykładowy tekst 1 qwertyążźśćłń" > test1.txt
+
+#### 2.4.2 Pobranie klucza publicznego
+keyVersion="1"
+
+#### Pobranie klucza publicznego ( https://cloud.google.com/kms/docs/retrieve-public-key#kms-howto-retrieve-public-key-cli )
+
+> gcloud kms keys versions get-public-key $keyVersion --location global --keyring $keyringsName --key $keyName --output-file public-key.pub
+
+> gcloud kms keys versions get-public-key 1 --location global --keyring vmkeyrings --key vmKeyAsync --output-file public-key.pub
+
+#### 2.4.3 Zaszyfrowanie pliku ( https://cloud.google.com/kms/docs/encrypt-decrypt-rsa#encrypt_data )
+
+> openssl pkeyutl -in $HOME/zadanie4/test1.txt -encrypt -pubin -inkey $HOME/zadanie4/public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > $HOME/zadanie4/secret/test1.enc
+
+> openssl pkeyutl -in test1.txt -encrypt -pubin -inkey public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > test1.enc
+
 
 
 
