@@ -288,7 +288,7 @@ defaultAlgorithm="rsa-decrypt-oaep-3072-sha256"
 
 > gcloud kms keyrings create vmkeyrings --location global
 
-# Utworzenie klucza ( https://cloud.google.com/kms/docs/creating-asymmetric-keys )
+#### Utworzenie klucza ( https://cloud.google.com/kms/docs/creating-asymmetric-keys )
 
 > gcloud kms keys create $keyName --location global --keyring $keyringsName --purpose $keyPurpose --default-algorithm $defaultAlgorithm
 
@@ -316,6 +316,64 @@ keyVersion="1"
 > openssl pkeyutl -in $HOME/zadanie4/test1.txt -encrypt -pubin -inkey $HOME/zadanie4/public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > $HOME/zadanie4/secret/test1.enc
 
 > openssl pkeyutl -in test1.txt -encrypt -pubin -inkey public-key.pub -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256 > test1.enc
+
+#### 2.4.4 Odszyfrowanie pliku ( https://cloud.google.com/kms/docs/encrypt-decrypt-rsa#decrypt_data )
+
+> gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/zadanie4/secret/test1.enc --plaintext-file $HOME/zadanie4/test1-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring vmkeyrings --key vmKeyAsync --version 1 --ciphertext-file test1.enc --plaintext-file test1-odszyfrowany.txt
+
+#### 2.4.5 Porównanie pliku po odszyfrowaniu
+
+> cat test1.txt
+
+Plik 1 - przykładowy tekst 1 qwertyążźśćłń
+
+> cat test1-odszyfrowany.txt
+
+Plik 1 - przykładowy tekst 1 qwertyążźśćłń
+
+### 2.5 Utworzenie kont serwisowych
+
+#### 2.5.1 Konto serwisowe do szyfrowania dokumentów
+
+1. Administracja.
+2. Konta usługi.
+3. Utwórz konto usługi. Nazwa konta usługi: document-encryptor
+
+Dodanie ról (uprawnienia konta usługi):
+
+- Storage Object Creator oraz
+- Cloud KMS CryptoKey Public Key Viewer
+
+Oraz warunków:
+
+zapisu tylko do danego bucketa:
+Name Starts with projects/_/buckets/secretstoragebp/objects/
+
+oraz pobieranie kluczy publicznych z danego keyringa:
+Name Starts with projects/resonant-idea-261413/locations/global/keyRings/vmkeyrings/cryptoKeys/
+
+#### 2.5.2 Konto serwisowe do odszyfrowania dokumentów
+
+Dodanie ról (uprawnienia konta usługi):
+
+- Storage Object Viewer oraz
+- Cloud KMS CryptoKey Decrypter
+
+Oraz warunków:
+
+odczytu danych tylko z danego bucketa:
+Name is projects/_/buckets/secretstoragepm
+or Name Starts with projects/_/buckets/secretstoragepm/objects/
+
+oraz deszyfrowania danych za pomocą kluczy z danego keyringa:
+Name Starts with projects/gcp-cloud-276415/locations/global/keyRings/vmkeyrings/cryptoKeys/
+
+
+
+
+
 
 
 
