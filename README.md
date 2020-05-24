@@ -508,21 +508,89 @@ cat test2-odszyfrowany.txt
 
 > gcloud iam service-accounts delete document-encryptor@gcp-cloud-276415.iam.gserviceaccount.com
 
+> gcloud iam service-accounts delete $serviceAccountEmailDecrypt
 
+> gcloud iam service-accounts delete document-decryptor@gcp-cloud-276415.iam.gserviceaccount.com
 
+> gsutil -m rm -r gs://${bucketName}/
 
+> gsutil -m rm -r gs://secretstoragepm/
 
-gcloud iam service-accounts delete $serviceAccountEmailDecrypt
+> keyVersion="1"
+> gcloud kms keys versions destroy $keyVersion --location global --keyring $keyringsName --key $keyName
 
+# 3. Zadanie 3
+Firma zdecydowała się już na ostatni krok ... zbudowanie niestandardowej roli za pomocą, której połączą możliwości szyfrowania oraz odszyfrowywania danych za pomocą KMS oraz dostępu do danych w Cloud Storage na poziomie READ
 
+### 3.1 Utworzenie niestandardowej roli
 
-gsutil -m rm -r gs://${bucketName}/
+projectId="gcp-cloud-276415"
+roleId="customrolezad4"
+roleTitle="Custom Role Zad4"
+roleDescription="Umożliwia szyfrowanie, deszyfrowanie danych za pomocą kluczy asymetrycznych KMS oraz umożliwia dostęp Read-only dla Cloud Storage"
+roleStage="GA" #ALPHA, BETA, GA
 
+# Utworzenie pliku yaml z rolą
+cat <<EOF > role.yaml
+title: "$roleTitle"
+description: "$roleDescription"
+stage: "$roleStage"
+includedPermissions:
+- cloudkms.cryptoKeyVersions.viewPublicKey
+- cloudkms.cryptoKeyVersions.useToDecrypt
+- storage.objects.get
+- storage.objects.list
+EOF
+  
+cat <<EOF > role.yaml
+title: Custom Role Zad4
+description: Umożliwia szyfrowanie, deszyfrowanie danych za pomocą kluczy asymetrycznych KMS oraz umożliwia dostęp Read-only dla Cloud Storage
+stage: "GA" #ALPHA, BETA, GA
+includedPermissions:
+- cloudkms.cryptoKeyVersions.viewPublicKey
+- cloudkms.cryptoKeyVersions.useToDecrypt
+- storage.objects.get
+- storage.objects.list
+EOF
 
-# keyVersion="1"
-# gcloud kms keys versions destroy $keyVersion --location global --keyring $keyringsName --key $keyName
+# Utworzenie roli
 
+> gcloud iam roles create $roleId --project $projectId --file role.yaml
 
+> gcloud iam roles create customrolezad4 --project gcp-cloud-276415 --file role.yaml
+
+# Opis roli
+
+> gcloud iam roles describe $roleId --project $projectId
+
+> gcloud iam roles describe customrolezad4 --project gcp-cloud-276415
+
+# Zapisanie pełnej nazwy roli do dalszego zadania
+
+> myCustomRole="projects/gcp-cloud-276415/roles/customrolezad4"
+
+### 3.2 Utworzenie Service Account z utworzoną rolą
+
+serviceAccountName="zad4serviceaccount"
+serviceAccountDescription=""
+serviceAccountDisplayName="Zad4 Service Account"
+
+#### Utworzenie Service Account
+
+> gcloud iam service-accounts create $serviceAccountName --description "$serviceAccountDescription" --display-name "$serviceAccountDisplayName"
+
+> gcloud iam service-accounts create zad4serviceaccount --description "" --display-name "Zad4 Service Account"
+
+# Sprawdzenie konta
+
+> gcloud iam service-accounts list
+
+# Zapisanie adresu konta
+
+serviceAccountEmail="zad4serviceaccount@gcp-cloud-276415.iam.gserviceaccount.com"
+
+# Dodanie roli
+gcloud projects add-iam-policy-binding $projectId --member serviceAccount:$serviceAccountEmail --role $myCustomRole
 
 
 
