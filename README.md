@@ -458,26 +458,69 @@ Plik 2.
 
 ### 2.8 Odszyfrowanie plików
 
-bucketName="secretstoragebp"
+bucketName="secretstoragepm"
 keyringsName="vmkeyrings"
 keyName="vmKeyAsync"
 keyVersion="1"
 
 # Pobranie plików
-gsutil cp gs://$bucketName/* .
+
+> gsutil cp gs://$bucketName/* .
+
+> gsutil cp gs://secretstoragepm/* .
 
 # Odszyfrowanie plików
-gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test1.enc --plaintext-file $HOME/test1-odszyfrowany.txt
-gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test2.enc --plaintext-file $HOME/test2-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test1.enc --plaintext-file $HOME/test1-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring vmkeyrings --key vmKeyAsync --version 1 --ciphertext-file test1.enc --plaintext-file test1-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring $keyringsName --key $keyName --version $keyVersion --ciphertext-file $HOME/test2.enc --plaintext-file $HOME/test2-odszyfrowany.txt
+
+> gcloud kms asymmetric-decrypt --location global --keyring vmkeyrings --key vmKeyAsync --version 1 --ciphertext-file test2.enc --plaintext-file test2-odszyfrowany.txt
 
 # Wyświetlenie zawartości odszyfrowanych plików
+
 cat test1-odszyfrowany.txt
 cat test2-odszyfrowany.txt
 
 # Próby wykonania niedozwolonych operacji
-gsutil rm gs://$bucketName/test1.enc
-gcloud kms keys versions get-public-key $keyVersion --location global --keyring $keyringsName --key $keyName --output-file public-key.pub
-gsutil cp $HOME/test1-odszyfrowany.txt gs://$bucketName/
+
+> gsutil rm gs://$bucketName/test1.enc
+
+> gsutil rm gs://secretstoragepm/test1.enc
+
+> gcloud kms keys versions get-public-key $keyVersion --location global --keyring $keyringsName --key $keyName --output-file public-key.pub
+
+> gsutil cp $HOME/test1-odszyfrowany.txt gs://$bucketName/
+
+### 2.9 Usunięcie zasobów
+
+> gcloud compute instances delete $vmNameEncrypt --zone=$vmZone
+
+> gcloud compute instances delete zad4encr --zone=europe-west3-b	
+
+> gcloud compute instances delete $vmNameDecrypt --zone=$vmZone
+
+> gcloud compute instances delete zad4decr --zone=europe-west3-b
+
+> gcloud iam service-accounts delete $serviceAccountEmailEncrypt
+
+> gcloud iam service-accounts delete document-encryptor@gcp-cloud-276415.iam.gserviceaccount.com
+
+
+
+
+
+gcloud iam service-accounts delete $serviceAccountEmailDecrypt
+
+
+
+gsutil -m rm -r gs://${bucketName}/
+
+
+# keyVersion="1"
+# gcloud kms keys versions destroy $keyVersion --location global --keyring $keyringsName --key $keyName
 
 
 
